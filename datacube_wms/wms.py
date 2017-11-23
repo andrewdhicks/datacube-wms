@@ -51,6 +51,10 @@ def wms_impl():
 def test_client():
     return render_template("test_client.html")
 
+@app.route('/health')
+def health_check():
+    return render_template("health_check.html")
+
 
 def get_capabilities(args):
     if args.get("service") != "WMS":
