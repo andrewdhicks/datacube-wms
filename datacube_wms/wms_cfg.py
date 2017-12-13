@@ -1,4 +1,5 @@
 # Static config for the wms metadata.
+import os
 
 response_cfg = {
     "Access-Control-Allow-Origin": "*",   # CORS header
@@ -7,7 +8,7 @@ response_cfg = {
 service_cfg = {
     # Required config
     "title": "WMS server for Australian Landsat Datacube",
-    "url": "http://localhost:5000/",
+    "url": os.environ.get("PUBLIC_URL", "http://localhost:5000/"),
     "published_CRSs": {
         "EPSG:3857": { # Web Mercator
             "geographic": False,
@@ -80,6 +81,34 @@ layer_cfg = [
                 "name": "ls8_nbart_albers",
                 # The Datacube name for the associated data product
                 "product_name": "ls8_nbart_albers",
+                # The Datacube name for the associated pixel-quality product (optional)
+                # The name of the associated Datacube pixel-quality product
+                "pq_dataset": "ls8_pq_albers",
+                # The name of the measurement band for the pixel-quality product
+                # (Only required if pq_dataset is set)
+                "pq_band": "pixelquality",
+                # Min zoom factor - sets the zoom level where the cutover from indicative polygons
+                # to actual imagery occurs.
+                "min_zoom_factor": 500.0,
+                # The fill-colour of the indicative polygons when zoomed out.
+                # Triplets (rgb) or quadruplets (rgba) of integers 0-255.
+                "zoomed_out_fill_colour": [ 150, 180, 200, 160],
+                # Time Zone.  In hours added to UTC (maybe negative)
+                # Used for rounding off scene times to a date.
+                # 9 is good value for imagery of Australia.
+                "time_zone": 9
+            },
+            {
+                # Included as a keyword  for the layer
+                "label": "FC",
+                # Included as a keyword  for the layer
+                "type": "fractional cover",
+                # Included as a keyword  for the layer
+                "variant": "terrain corrected",
+                # The WMS name for the layer
+                "name": "ls8_fc_albers",
+                # The Datacube name for the associated data product
+                "product_name": "ls8_fc_albers",
                 # The Datacube name for the associated pixel-quality product (optional)
                 # The name of the associated Datacube pixel-quality product
                 "pq_dataset": "ls8_pq_albers",
@@ -329,6 +358,50 @@ layer_cfg = [
                 "scale_factor": 12.0
             },
             #
+            # Examples of FC styles.
+            {
+                "name": "simple_fc",
+                "title": "Fractional Cover",
+                "abstract": "Fractional cover representation, with green vegetation in green, dead vegetation in blue, and bare soil in red",
+                "components": {
+                    "red": {
+                        "BS": 1.0
+                    },
+                    "green": {
+                        "PV": 1.0
+                    },
+                    "blue": {
+                        "NBV": 1.0
+                    }
+                },
+                # Used to clip off very bright areas.
+                "scale_factor": 0.39
+            },
+            {
+                "name": "fc_cloudmask",
+                "title": "Fractional Cover (Cloud masked)",
+                "abstract": "Fractional cover representation, with green vegetation in green, dead vegetation in blue, and bare soil in red",
+                "needed_bands": ["BS", "PV", "NPV"],
+                # Areas where the index_function returns outside the range are masked.
+                "range": [0.0, 1.0],
+                "components": {
+                    "red": {
+                        "bs": 1.0
+                    },
+                    "green": {
+                        "pv": 1.0
+                    },
+                    "blue": {
+                        "npv": 1.0
+                    }
+                },
+                "pq_mask_flags": {
+                    "cloud_acca": "no_cloud",
+                    "cloud_fmask": "no_cloud",
+                },
+                "scale_factor": 0.39
+            },
+            #
             # Examples of non-linear heat-mapped styles.
             {
                 "name": "ndvi",
@@ -482,7 +555,7 @@ layer_cfg = [
                     "cloud_fmask": "no_cloud",
                 },
                 "scale_factor": 12.0
-            }
+            },
         ],
         # Default style (if request does not specify style)
         # MUST be defined in the styles list above.
