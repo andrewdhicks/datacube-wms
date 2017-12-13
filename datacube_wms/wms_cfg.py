@@ -371,7 +371,7 @@ layer_cfg = [
                         "PV": 1.0
                     },
                     "blue": {
-                        "NBV": 1.0
+                        "NPV": 1.0
                     }
                 },
                 # Used to clip off very bright areas.
@@ -386,13 +386,13 @@ layer_cfg = [
                 "range": [0.0, 1.0],
                 "components": {
                     "red": {
-                        "bs": 1.0
+                        "BS": 1.0
                     },
                     "green": {
-                        "pv": 1.0
+                        "PV": 1.0
                     },
                     "blue": {
-                        "npv": 1.0
+                        "NPV": 1.0
                     }
                 },
                 "pq_mask_flags": {
